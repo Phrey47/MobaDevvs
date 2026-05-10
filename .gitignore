@@ -21,3 +21,12 @@ local.properties
 # OS
 .DS_Store
 Thumbs.db
+
+# Kotlin / JVM
+.kotlin/
+
+# Android build outputs (recursive safety)
+**/build/
+
+# Gradle wrapper logs/cache (optional but useful)
+.gradle/
