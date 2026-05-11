@@ -9,5 +9,50 @@
   - Gabriel Jret Ouano
   - John Michael Sta Ana
 
-### WIREFRAMES:
-https://docs.google.com/document/d/1hKZtAnOBMM7dyGPl0WCE--K4iumdk_antoLMgEAis_c/edit?tab=t.0
+# Mobile Bible App
+
+A native Android Bible reading app built with Kotlin and Jetpack Compose.
+
+---
+
+## Overview
+A personal Android application that allows users to read, search, 
+bookmark, highlight, and annotate Bible verses on their Android device.
+
+---
+
+## Tech Stack
+
+
+---
+
+## Screens
+
+
+---
+
+## Features
+
+
+---
+
+## Setup
+1. Clone the repo
+2. Open in Android Studio
+3. Let Gradle sync
+4. Run on device or emulator (API 21+)
+
+---
+
+## Build Info
+
+
+---
+
+## Notes
+
+
+---
+
+## License 
+
