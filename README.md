@@ -22,7 +22,12 @@ bookmark, highlight, and annotate Bible verses on their Android device.
 ---
 
 ## Tech Stack
-
+- **Language:** Kotlin
+- **UI:** Jetpack Compose
+- **Navigation:** Navigation Compose
+- **State:** ViewModel + StateFlow
+- **Storage:** DataStore Preferences
+- **Design:** Material 3
 
 ---
 
