@@ -1,0 +1,32 @@
+# Gradle
+.gradle/
+build/
+
+# Android Studio
+.idea/
+*.iml
+
+# Local config
+local.properties
+
+# Build outputs
+*.apk
+*.aab
+*.dex
+
+# Logs / debug
+*.log
+*.hprof
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Kotlin / JVM
+.kotlin/
+
+# Android build outputs (recursive safety)
+**/build/
+
+# Gradle wrapper logs/cache (optional but useful)
+.gradle/
