@@ -20,7 +20,7 @@
 2. **Screen Title** — Bold "Books" label at the top identifying the current screen.
 3. **Search Bar** — Text input field used to filter the book list by name in real time.
 4. **Testament Tabs** — Two tabs — Old Testament and New Testament — to filter the book list by canon section.
-5. **Book Grid List** — Scrollable 2-column grid of Bible books. Each card shows a book icon, book name, and a right arrow indicator.
+5. **Book Grid List** — Scrollable 2-column grid of Bible books. Each card shows a book icon, and book name.
 6. **Section Dividers** — Visual horizontal separators grouping books by alphabet or category within the list.
 7. **Bottom Navigation Bar** — Persistent 5-tab navigation bar. Books tab is active.
 
@@ -38,7 +38,6 @@
 | CRD-01 | Card | Book Card | Tappable card for each Bible book — navigates to reader |
 | ICN-01 | Icon | Book Icon | Visual icon placeholder representing each book |
 | TXT-02 | Text | Book Name | Displays the full name of the Bible book on the card |
-| ICN-02 | Icon | Arrow (›) | Right-facing arrow indicating the card is tappable |
 | DIV-01 | Divider | Section Label | Horizontal divider grouping books by category or letter |
 | NAV-01 | Nav Item | Home | Bottom nav — navigates to SCR-001 Home Screen |
 | NAV-02 | Nav Item | Search | Bottom nav — navigates to SCR-002 Search Screen |
