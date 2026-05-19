@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
             val settings by vm.settings.collectAsState()
             val navController = rememberNavController()
 
-            BibleAppTheme(darkTheme = settings.theme == "dark") {
+            BibleAppTheme(theme = settings.theme) {
                 Scaffold(
                     bottomBar = { BottomNav(navController) }
                 ) { innerPadding ->
@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.Search.route) {
                             SearchScreen(navController, vm)
                         }
-                        composable(Screen.Saved.route) {
+                        composable(Screen.Bookmarks.route) {
                             SavedScreen(navController, vm)
                         }
                         composable(Screen.Settings.route) {

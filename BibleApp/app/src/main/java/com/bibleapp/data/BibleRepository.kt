@@ -42,7 +42,8 @@ data class ReadingProgress(
 data class AppSettings(
     val theme: String = "light",   // light | dark | sepia
     val fontSize: String = "md",   // sm | md | lg | xl
-    val translation: String = "KJV"
+    val translation: String = "KJV",
+    val notificationsEnabled: Boolean = true
 )
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "bible_prefs")

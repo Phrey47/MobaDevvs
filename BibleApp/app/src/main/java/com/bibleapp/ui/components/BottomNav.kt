@@ -13,9 +13,9 @@ private data class NavItem(val label: String, val icon: ImageVector, val route: 
 
 private val NAV_ITEMS = listOf(
     NavItem("Home",     Icons.Outlined.Home,        Screen.Home.route),
-    NavItem("Bible",    Icons.Outlined.MenuBook,     Screen.Books.route),
     NavItem("Search",   Icons.Outlined.Search,       Screen.Search.route),
-    NavItem("Saved",    Icons.Outlined.Bookmark,     Screen.Saved.route),
+    NavItem("Books",    Icons.Outlined.MenuBook,     Screen.Books.route),
+    NavItem("Bookmarks", Icons.Outlined.Bookmark,    Screen.Bookmarks.route),
     NavItem("Settings", Icons.Outlined.Settings,     Screen.Settings.route),
 )
 
@@ -27,7 +27,7 @@ fun BottomNav(navController: NavController) {
     NavigationBar {
         NAV_ITEMS.forEach { item ->
             val selected = currentRoute == item.route ||
-                (item.route == Screen.Books.route && currentRoute?.startsWith("chapters") == true)
+                (item.route == Screen.Books.route && (currentRoute?.startsWith("chapters") == true || currentRoute?.startsWith("reader") == true))
             NavigationBarItem(
                 selected = selected,
                 onClick = {
