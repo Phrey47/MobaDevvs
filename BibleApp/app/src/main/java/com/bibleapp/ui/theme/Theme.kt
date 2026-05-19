@@ -50,13 +50,30 @@ private val DarkColors = darkColorScheme(
     outline = Zinc800,
 )
 
+private val SepiaColors = lightColorScheme(
+    primary = Amber600,
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFFF5E6C8),
+    onPrimaryContainer = Color(0xFF2E2416),
+    secondary = Color(0xFF8A7357),
+    background = Color(0xFFF7EEDB),
+    surface = Color(0xFFFFF8EA),
+    onBackground = Color(0xFF2E2416),
+    onSurface = Color(0xFF3A2E1D),
+    outline = Color(0xFFE1CFAF),
+)
+
 @Composable
 fun BibleAppTheme(
-    darkTheme: Boolean = false,
+    theme: String = "light",
     content: @Composable () -> Unit
 ) {
     MaterialTheme(
-        colorScheme = if (darkTheme) DarkColors else LightColors,
+        colorScheme = when (theme) {
+            "dark" -> DarkColors
+            "sepia" -> SepiaColors
+            else -> LightColors
+        },
         content = content
     )
 }
