@@ -21,7 +21,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bibleapp.data.Bookmark
 import com.bibleapp.data.POPULAR_SEARCHES
+import com.bibleapp.data.getBook
 import com.bibleapp.data.searchVerses
 import com.bibleapp.ui.Screen
 import com.bibleapp.ui.theme.Amber600
@@ -30,10 +32,20 @@ import com.bibleapp.viewmodel.BibleViewModel
 @Composable
 fun SearchScreen(navController: NavController, vm: BibleViewModel) {
     var query by remember { mutableStateOf("") }
+    var selectedFilter by remember { mutableStateOf("All") }
     val recentSearch by vm.recentSearch.collectAsState()
+    val bookmarks by vm.bookmarks.collectAsState()
 
-    val results = remember(query) {
-        if (query.trim().length > 1) searchVerses(query) else emptyList()
+    val results = remember(query, selectedFilter) {
+        val base = if (query.trim().length > 1) searchVerses(query) else emptyList()
+        when (selectedFilter) {
+            "OT" -> base.filter { getBook(it.bookId)?.testament == "OT" }
+            "NT" -> base.filter { getBook(it.bookId)?.testament == "NT" }
+            "Topic" -> base.filter { result ->
+                POPULAR_SEARCHES.any { result.text.contains(it, ignoreCase = true) }
+            }
+            else -> base
+        }
     }
 
     Column(
@@ -55,15 +67,37 @@ fun SearchScreen(navController: NavController, vm: BibleViewModel) {
                     },
                     placeholder = { Text("Search Scripture…", fontSize = 14.sp) },
                     leadingIcon = { Icon(Icons.Outlined.Search, null, modifier = Modifier.size(18.dp)) },
-                    trailingIcon = if (query.isNotEmpty()) {
-                        { IconButton(onClick = { query = "" }) {
-                            Icon(Icons.Outlined.Clear, null, modifier = Modifier.size(16.dp)) } }
-                    } else null,
+                    trailingIcon = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (query.isNotEmpty()) {
+                                IconButton(onClick = { query = "" }) {
+                                    Icon(Icons.Outlined.Clear, null, modifier = Modifier.size(16.dp))
+                                }
+                            }
+                            Icon(Icons.Outlined.FilterList, null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(12.dp))
+                        }
+                    },
                     singleLine = true,
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Amber600)
                 )
+                Spacer(Modifier.height(10.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOf("All", "OT", "NT", "Verse", "Topic").forEach { filter ->
+                        val selected = selectedFilter == filter
+                        FilterChip(
+                            selected = selected,
+                            onClick = { selectedFilter = filter },
+                            label = { Text(filter, fontSize = 12.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Amber600,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        )
+                    }
+                }
             }
         }
         HorizontalDivider()
@@ -134,11 +168,22 @@ fun SearchScreen(navController: NavController, vm: BibleViewModel) {
             } else {
                 // Results
                 item {
+                    if (selectedFilter != "All") {
+                        InputChip(
+                            selected = true,
+                            onClick = { selectedFilter = "All" },
+                            label = { Text(selectedFilter, fontSize = 12.sp) },
+                            trailingIcon = { Icon(Icons.Outlined.Close, null, modifier = Modifier.size(14.dp)) },
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
                     Text("${results.size} result${if (results.size != 1) "s" else ""} for \"$query\"",
                         fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 12.dp))
                 }
                 items(results) { result ->
+                    val key = "${result.bookId}-${result.chapter}-${result.verse}"
+                    val bookmarked = bookmarks.containsKey(key)
                     Card(
                         onClick = { navController.navigate(Screen.Reader.createRoute(result.bookId, result.chapter)) },
                         modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
@@ -147,9 +192,11 @@ fun SearchScreen(navController: NavController, vm: BibleViewModel) {
                         elevation = CardDefaults.cardElevation(0.dp),
                         border = CardDefaults.outlinedCardBorder()
                     ) {
-                        Column(Modifier.padding(16.dp)) {
-                            Text("${result.bookName} ${result.chapter}:${result.verse}",
-                                fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Amber600)
+                        Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Icon(Icons.Outlined.MenuBook, null, modifier = Modifier.size(20.dp), tint = Amber600)
+                            Column(Modifier.weight(1f)) {
+                                Text("${result.bookName} ${result.chapter}:${result.verse}",
+                                    fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Amber600)
                             Spacer(Modifier.height(4.dp))
                             Text(
                                 buildAnnotatedString {
@@ -170,6 +217,27 @@ fun SearchScreen(navController: NavController, vm: BibleViewModel) {
                                 fontSize = 14.sp, lineHeight = 22.sp,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
+                            }
+                            IconButton(onClick = {
+                                if (bookmarked) vm.removeBookmark(key)
+                                else vm.addBookmark(
+                                    Bookmark(
+                                        key = key,
+                                        bookId = result.bookId,
+                                        bookName = result.bookName,
+                                        chapter = result.chapter,
+                                        verse = result.verse,
+                                        text = result.text,
+                                        createdAt = System.currentTimeMillis()
+                                    )
+                                )
+                            }) {
+                                Icon(
+                                    if (bookmarked) Icons.Outlined.BookmarkAdded else Icons.Outlined.BookmarkBorder,
+                                    null,
+                                    tint = if (bookmarked) Amber600 else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }
