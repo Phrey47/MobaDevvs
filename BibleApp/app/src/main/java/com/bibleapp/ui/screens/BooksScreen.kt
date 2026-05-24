@@ -37,7 +37,7 @@ fun BooksScreen(navController: NavController) {
         // Header
         Surface(color = MaterialTheme.colorScheme.surface) {
             Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 52.dp, bottom = 12.dp)) {
-                Text("Bible", fontSize = 24.sp, fontWeight = FontWeight.SemiBold,
+                Text("Books", fontSize = 24.sp, fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(bottom = 12.dp))
                 // Search field
