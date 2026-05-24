@@ -1,8 +1,10 @@
 package com.bibleapp.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -10,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -35,6 +38,33 @@ fun SettingsScreen(vm: BibleViewModel) {
                 }
             }
             HorizontalDivider()
+        }
+
+        item {
+            SettingsCard {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Box(
+                        Modifier
+                            .size(52.dp)
+                            .clip(CircleShape)
+                            .background(Amber600),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Outlined.AutoStories, null, tint = Color.White, modifier = Modifier.size(28.dp))
+                    }
+                    Column(Modifier.weight(1f)) {
+                        Text("Bible App", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                        Text("Personal offline Bible", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Icon(Icons.Outlined.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
         }
 
         item {
@@ -103,13 +133,32 @@ fun SettingsScreen(vm: BibleViewModel) {
         }
 
         item {
+            SectionHeader("Notifications")
+            SettingsCard {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Box(Modifier.size(32.dp).background(MaterialTheme.colorScheme.surfaceVariant,
+                        RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                        Icon(Icons.Outlined.Notifications, null, modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Text("Notifications", fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = settings.notificationsEnabled,
+                        onCheckedChange = { enabled -> vm.updateSettings { copy(notificationsEnabled = enabled) } }
+                    )
+                }
+            }
+        }
+
+        item {
             SectionHeader("About")
             SettingsCard {
                 SettingRowNav(icon = Icons.Outlined.Info, title = "About Bible App", onClick = {})
-                HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-                SettingRowNav(icon = Icons.Outlined.Favorite, title = "Rate the App", onClick = {})
-                HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-                SettingRowNav(icon = Icons.Outlined.Share, title = "Share with Friends", onClick = {})
             }
         }
 
@@ -161,7 +210,7 @@ private fun SettingRow(icon: ImageVector, title: String, content: @Composable ()
 @Composable
 private fun SettingRowNav(icon: ImageVector, title: String, onClick: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
