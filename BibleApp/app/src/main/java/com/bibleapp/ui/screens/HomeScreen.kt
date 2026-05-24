@@ -64,17 +64,33 @@ fun HomeScreen(navController: NavController, vm: BibleViewModel) {
         // ── Header ──────────────────────────────────────────────────────
         item {
             Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
-                Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 52.dp, bottom = 16.dp)) {
-                    Text(getGreeting(), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
-                    Text("Open the Word", fontSize = 26.sp, fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(top = 2.dp, bottom = 12.dp))
+                Row(
+                    Modifier.padding(start = 20.dp, end = 20.dp, top = 52.dp, bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(getGreeting(), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
+                        Text("Open the Word", fontSize = 26.sp, fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(top = 2.dp, bottom = 12.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Chip(icon = Icons.Outlined.LocalFireDepartment, label = "$streak day streak",
+                                containerColor = Color(0xFFFFFBEB), contentColor = Color(0xFF92400E))
+                            Chip(icon = Icons.Outlined.Star, label = "${bookmarks.size} saved",
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Chip(icon = Icons.Outlined.LocalFireDepartment, label = "$streak day streak",
-                            containerColor = Color(0xFFFFFBEB), contentColor = Color(0xFF92400E))
-                        Chip(icon = Icons.Outlined.Star, label = "${bookmarks.size} saved",
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Box(
+                            Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(Amber600),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Outlined.AutoStories, null, tint = Color.White, modifier = Modifier.size(24.dp))
+                        }
                     }
                 }
             }
@@ -129,9 +145,11 @@ fun HomeScreen(navController: NavController, vm: BibleViewModel) {
         }
 
         // ── Continue Reading ────────────────────────────────────────────
-        if (lastRead != null) {
-            item {
-                Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 20.dp)) {
+        item {
+            val resumeBookId = lastRead?.bookId ?: "jhn"
+            val resumeBookName = lastRead?.bookName ?: "John"
+            val resumeChapter = lastRead?.chapter ?: 3
+            Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 20.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Icon(Icons.Outlined.AccessTime, null, tint = MaterialTheme.colorScheme.outline,
@@ -139,8 +157,8 @@ fun HomeScreen(navController: NavController, vm: BibleViewModel) {
                         SectionLabel("Continue Reading")
                     }
                     Spacer(Modifier.height(8.dp))
-                    Card(
-                        onClick = { navController.navigate(Screen.Reader.createRoute(lastRead.bookId, lastRead.chapter)) },
+                Card(
+                        onClick = { navController.navigate(Screen.Reader.createRoute(resumeBookId, resumeChapter)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -158,16 +176,15 @@ fun HomeScreen(navController: NavController, vm: BibleViewModel) {
                                 Icon(Icons.Outlined.MenuBook, null, tint = Color.White, modifier = Modifier.size(22.dp))
                             }
                             Column(Modifier.weight(1f)) {
-                                Text(lastRead.bookName, fontWeight = FontWeight.SemiBold,
+                                Text(resumeBookName, fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface)
-                                Text("Chapter ${lastRead.chapter}", fontSize = 13.sp,
+                                Text("Chapter $resumeChapter", fontSize = 13.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Icon(Icons.Outlined.ChevronRight, null, tint = MaterialTheme.colorScheme.outline)
                         }
                     }
                 }
-            }
         }
 
         // ── Popular Books ───────────────────────────────────────────────
@@ -182,11 +199,15 @@ fun HomeScreen(navController: NavController, vm: BibleViewModel) {
                     }
                 }
                 Spacer(Modifier.height(8.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    items(QUICK_BOOKS) { book ->
-                        val (fg, bg) = BOOK_COLORS[book.id] ?: (MaterialTheme.colorScheme.primary to MaterialTheme.colorScheme.primaryContainer)
-                        QuickBookChip(book = book, fg = fg, bg = bg,
-                            onClick = { navController.navigate(Screen.Chapters.createRoute(book.id)) })
+                QUICK_BOOKS.chunked(3).forEachIndexed { rowIndex, rowBooks ->
+                    if (rowIndex > 0) Spacer(Modifier.height(10.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                        rowBooks.forEach { book ->
+                            val (fg, bg) = BOOK_COLORS[book.id] ?: (MaterialTheme.colorScheme.primary to MaterialTheme.colorScheme.primaryContainer)
+                            QuickBookChip(book = book, fg = fg, bg = bg,
+                                modifier = Modifier.weight(1f),
+                                onClick = { navController.navigate(Screen.Chapters.createRoute(book.id)) })
+                        }
                     }
                 }
             }
@@ -204,7 +225,7 @@ fun HomeScreen(navController: NavController, vm: BibleViewModel) {
                     }
                     Spacer(Modifier.height(8.dp))
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        history.drop(1).take(4).forEach { h ->
+                        history.drop(1).take(9).forEach { h ->
                             Card(
                                 onClick = { navController.navigate(Screen.Reader.createRoute(h.bookId, h.chapter)) },
                                 modifier = Modifier.fillMaxWidth(),
@@ -255,9 +276,10 @@ private fun SectionLabel(text: String) {
 }
 
 @Composable
-private fun QuickBookChip(book: com.bibleapp.data.BibleBook, fg: Color, bg: Color, onClick: () -> Unit) {
+private fun QuickBookChip(book: com.bibleapp.data.BibleBook, fg: Color, bg: Color, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
         onClick = onClick,
+        modifier = modifier,
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(0.dp),
