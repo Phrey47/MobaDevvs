@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,6 +25,7 @@ fun SavedScreen(navController: NavController, vm: BibleViewModel) {
     var tab by remember { mutableStateOf(0) }
     val bookmarks by vm.bookmarks.collectAsState()
     val notes by vm.notes.collectAsState()
+    val highlights by vm.highlights.collectAsState()
 
     Column(
         modifier = Modifier
@@ -32,7 +34,7 @@ fun SavedScreen(navController: NavController, vm: BibleViewModel) {
     ) {
         Surface(color = MaterialTheme.colorScheme.surface) {
             Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 52.dp, bottom = 4.dp)) {
-                Text("Saved", fontSize = 24.sp, fontWeight = FontWeight.SemiBold,
+                Text("Bookmarks", fontSize = 24.sp, fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(bottom = 12.dp))
                 TabRow(
@@ -57,6 +59,26 @@ fun SavedScreen(navController: NavController, vm: BibleViewModel) {
                 }
             }
         }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            AssistChip(onClick = { tab = 0 }, label = { Text("Newest", fontSize = 12.sp) }, leadingIcon = {
+                Icon(Icons.Outlined.Sort, null, modifier = Modifier.size(14.dp))
+            })
+            AssistChip(onClick = { }, label = { Text("All saved", fontSize = 12.sp) }, leadingIcon = {
+                Icon(Icons.Outlined.FilterList, null, modifier = Modifier.size(14.dp))
+            })
+            Spacer(Modifier.weight(1f))
+            IconButton(onClick = { }) {
+                Icon(Icons.Outlined.MoreHoriz, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        HorizontalDivider()
 
         if (tab == 0) {
             val bmList = bookmarks.values.sortedByDescending { it.createdAt }
@@ -69,6 +91,8 @@ fun SavedScreen(navController: NavController, vm: BibleViewModel) {
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(bmList, key = { it.key }) { bm ->
+                        val hasNote = notes.containsKey(bm.key)
+                        val highlightColor = colorForHighlight(highlights[bm.key])
                         Card(
                             onClick = { navController.navigate(Screen.Reader.createRoute(bm.bookId, bm.chapter)) },
                             shape = RoundedCornerShape(16.dp),
@@ -76,18 +100,38 @@ fun SavedScreen(navController: NavController, vm: BibleViewModel) {
                             elevation = CardDefaults.cardElevation(0.dp),
                             border = CardDefaults.outlinedCardBorder()
                         ) {
-                            Row(Modifier.padding(16.dp)) {
+                            Row {
+                                Box(
+                                    Modifier
+                                        .width(5.dp)
+                                        .fillMaxHeight()
+                                        .background(highlightColor ?: Color.Transparent)
+                                )
+                            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Outlined.Bookmark, null, tint = Amber600, modifier = Modifier.size(22.dp))
+                                Spacer(Modifier.width(12.dp))
                                 Column(Modifier.weight(1f)) {
                                     Text("${bm.bookName} ${bm.chapter}:${bm.verse}",
                                         fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Amber600)
                                     Spacer(Modifier.height(4.dp))
                                     Text(bm.text, fontSize = 14.sp, lineHeight = 20.sp,
                                         color = MaterialTheme.colorScheme.onSurface, maxLines = 3)
+                                    if (hasNote) {
+                                        Row(
+                                            Modifier.padding(top = 8.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            Icon(Icons.Outlined.StickyNote2, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            Text("Note attached", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                    }
                                 }
                                 IconButton(onClick = { vm.removeBookmark(bm.key) }) {
-                                    Icon(Icons.Outlined.BookmarkRemove, "Remove",
+                                    Icon(Icons.Outlined.MoreHoriz, "Options",
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
+                            }
                             }
                         }
                     }
@@ -137,6 +181,14 @@ fun SavedScreen(navController: NavController, vm: BibleViewModel) {
             }
         }
     }
+}
+
+private fun colorForHighlight(name: String?): Color? = when (name) {
+    "yellow" -> Color(0xFFFDE68A)
+    "green" -> Color(0xFFBBF7D0)
+    "blue" -> Color(0xFFBFDBFE)
+    "pink" -> Color(0xFFFBCFE8)
+    else -> null
 }
 
 @Composable
